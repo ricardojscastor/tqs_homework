@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TQS Homework</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+        <script>
+            $(document).ready(function(){                
+                $("#myModal").on("shown.bs.modal", function() {
+                    var idLocal = $('#local').val();
+                    var localName = $("#local option:selected").text();
+                    $("#title").text(idLocal + " - " + localName);
+                    requestWeather(idLocal);
+                })
+                
+                $(".remove").click(function() {
+                    $('.pp').remove();
+                })       
+            
+                function requestWeather(id) {
+                    var result = $.ajax({
+                            url : 'http://localhost:8080/local/' + id + '/weather',
+                            type : 'GET'
+                    }).fail(console.error).done(writeOnModal);
+                }
+
+                function writeOnModal(response) {
+                    for ( let object in response) {
+                        writeTable(response[object]);
+                    }
+                }
+
+                function writeTable(weather) {
+                                      
+                    $("#weather")
+                        .append(
+                            $("<tr class=\"pp\"> </tr>")
+                                .append(
+                                    $("<td> </td>")
+                                        .text(
+                                            weather["forecastDate"]))
+                                .append(
+                                    $("<td> </td>")
+                                        .text(
+                                            weather["tMin"]))
+                                .append(
+                                    $("<td> </td>")
+                                        .text(
+                                            weather["tMax"]))
+                                .append(
+                                    $("<td> </td>")
+                                        .text(
+                                            weather["idWeatherType"]))
+                                .append(
+                                    $("<td> </td>")
+                                        .text(
+                                            weather["predWindDir"]))
+                                .append(
+                                    $("<td> </td>")
+                                        .text(
+                                            weather["classWindSpeed"])));
+                }
+            })
+
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <div>
+                <h1>Previsão Metereológica</h1>
+            </div>
+            <div class="form-group">
+                <label for="local">Local: </label>
+                <select class="form-control" id="local">
+                    <option th:each="local: ${locals}" th:value="${local.globalIdLocal}" th:text="${local.local}" th:class="${local.local}" th:id="${local.globalIdLocal}"></option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Previsão</button>
+        </div>
+
+        <!-- Modal -->
+        <div id="myModal" class="modal fade " role="dialog">
+            <div class="modal-dialog modal-lg">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 id="title" class="modal-title">Estado do tempo</h4>
+                        <button type="button" class="close remove" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Data</th>
+                                    <th scope="col">Temperatura Máxima</th>
+                                    <th scope="col">Temperatura Mínima</th>
+                                    <th scope="col">Estado do tempo</th>
+                                    <th scope="col">Direção do Vento</th>
+                                    <th scope="col">Intensidade do Vento</th>
+                                </tr>
+                            </thead>
+                            <tbody id="weather">
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger remove" data-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
